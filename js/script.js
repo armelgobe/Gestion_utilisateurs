@@ -1,99 +1,47 @@
-//Ici dire que pour le moment on fait du JavaScript simple côté client donc on n'utilise pas de données issues d'une bases de données comme des données issues d'un fichier JSON par exemple. Mais ils peuvent très bien récupérer les données d'une base de données avec l'API fetch en JavaScript.
-const users = [{ id: 1, nom: "Jean", prenom: "Pierre", age: 25 }];
-const validateButton = document.getElementById("valider");
+// Ici on fait du Javascript simple côté server
 
-validateButton.addEventListener("click", addUser);
-showAllUsers();
-//Fonction à écrire et variables à créer après avoir créé la fonction showAllUsers()
-updateOrDeleteUser();
-function updateOrDeleteUser() {
-  const deleteButtons = document.querySelectorAll(".Supprimer");
-  const editButtons = document.querySelectorAll(".Modifier");
+const users = [{id:1, nom:"Jean", prenom:"Pierre", age:25}]; // Déclaration du tableau qui contiendra les nouvels utilisateurs ajouter
+const validateButton = document.getElementById("valider"); //Recuperation du boutton dans le fichier index html en l'appelant par son nom cad "valider"
 
-  deleteButtons.forEach((button) =>
-    button.addEventListener("click", () => deleteUser(button.id))
-  );
-  editButtons.forEach((button) =>
-    button.addEventListener("click", () => editUser(button.id))
-  );
+validateButton.addEventListener("click", addUser); // Creation de la fonction addEventListener associée au boutton qui va detecter lorsque l'utisateur clique sur le boutton. Elle prend en paramètre click et une fonction qui par nous en l'occurence addUser qui est la fonction qui sera appele lorsque l'utilisateur clique sur le boutton
+
+//Création de le fonction addUser qui sera appelée lorsque l'utilisateur cliquera sur le boutton
+// const addUser = () => {}  //Arrow function donc l'equivalent est comme ci dessous:
+
+
+//fonctionnalités : Action qui suivra après que l'utilisateur ai cliqué sur le boutton "Ajouter"
+function addUser(event) {     // passage du parametre event à notre fonction
+  event.preventDefault();     //Utilisation du parametre event pour eviter que la page ne s'actualise lorsqu'on clique sur le boutton
+
+  const enteredUsersData= {   // Création d'une variable de type objet qui va pré-sauvegardé toutes les valeurs que l'utilisateur aura rentré dans le formulaire
+    //Comme dans tout système de base de donnée. Chaque ensemble de base de donnée possède un numéro d'identification unique et doit être généré en interne automatiquement
+    //génération de l'id d'un ensemble à sauvegarder par récupération du numéro  et incrémentation du dernier ensemble sauvegardé
+    id: users[users.length-1].id+1,  // cette commande n'est valable que si users est non nul
+
+    //commande plus complète au cas users est nul de la génération de l'id automatiquement
+    id: users.length !==0 ? users[users.length-1].id +1 : 1, // "users.length !==0 " (si la longueur du tableau est différent de 0),  "? users[users.length - 1].id + 1" (si c'est le cas "?"alors incrémente l'id du dernier ensemble du tableau de +1), ":"(sinon(else) id = 1)
+    
+    //Recuperation des valeurs rentrées par l'utilisateur
+    nom:document.getElementById('nom').value, 
+    prenom:document.getElementById('prenom').value,
+    age:document.getElementById('age').value,
+ };
+
+   //contrôle des champs nom , prenom & age avant enregistrement : vérifier qu'il ne sont pas vide
+  if(enteredUsersData.nom!=="" &&             // en gros s'il ne sont pas vide
+   enteredUsersData.prenom!=="" && 
+   enteredUsersData.age!==""
+   ){ 
+    //alors
+    users.push(enteredUsersData); // Sauvegarde definitive dans users des données rentrées par l'utilisateur.
+    console.log(users); // pour voir les modifications....
+    showAllUser(); // fonction appelé qui va afficher tous les utilisateurs enregistrés dans users
+
+   }
 }
 
-//Fonctionnalités
-function addUser(e) {
-  e.preventDefault();
-  const enteredUsersData = {
-    id: users.length !== 0 ? users[users.length - 1].id + 1 : 1,
-    nom: document.getElementById("nom").value,
-    prenom: document.getElementById("prenom").value,
-    age: document.getElementById("age").value
-  };
-  if (
-    enteredUsersData.nom !== "" &&
-    enteredUsersData.prenom !== "" &&
-    enteredUsersData.age !== ""
-  ) {
-    users.push(enteredUsersData);
-    showAllUsers();
-  }
-}
+function showAllUser() {
+  document.getElementById('allUsers').innerHTML=''; // innerHTML: récuperer le code html de allUsers / ='' : l'initialiser
 
-function showAllUsers() {
-  document.getElementById("allUsers").innerHTML = ""; // Pour rénitialiser le contenu de la div afin de lui attribuer de nouvelles valeurs
-  users.forEach((user) => {
-    const newInputs = {
-      Nom: document.createElement("input"),
-      Prenom: document.createElement("input"),
-      Age: document.createElement("input")
-    };
-    const newDiv = document.createElement("div");
-    const newButtons = {
-      Supprimer: document.createElement("input"),
-      Modifier: document.createElement("input")
-    };
 
-    for (const [key, value] of Object.entries(newInputs)) {
-      value.setAttribute("type", "text");
-      //Utile pour identifier l'input afin de pouvoir modifier son contenu par la suite
-      value.setAttribute("id", `${key}OfUser${user.id}`);
-
-      key === "Nom" && value.setAttribute("value", `${user.nom}`);
-      key === "Prenom" && value.setAttribute("value", `${user.prenom}`);
-      key === "Age" && value.setAttribute("value", `${user.age}`);
-
-      newDiv.appendChild(value);
-      document.getElementById("allUsers").appendChild(newDiv);
-    }
-    for (const [key, value] of Object.entries(newButtons)) {
-      value.setAttribute("type", "button");
-      value.setAttribute("class", key);
-      value.setAttribute("id", user.id);
-      value.setAttribute("value", key);
-      newDiv.appendChild(value);
-    }
-  });
-
-  updateOrDeleteUser();
-}
-
-function deleteUser(id) {
-  users.forEach((user) => {
-    const userPositionInArray = users.indexOf(user);
-    user.id === parseInt(id) && users.splice(userPositionInArray, 1);
-  });
-  showAllUsers();
-}
-
-function editUser(id) {
-  const newInputs = {
-    nom: document.getElementById(`NomOfUser${id}`).value,
-    prenom: document.getElementById(`PrenomOfUser${id}`).value,
-    age: document.getElementById(`AgeOfUser${id}`).value
-  };
-  users.forEach((user) => {
-    if (user.id === parseInt(id)) {
-      user.nom = newInputs.nom;
-      user.prenom = newInputs.prenom;
-      user.age = newInputs.age;
-    }
-  });
 }
