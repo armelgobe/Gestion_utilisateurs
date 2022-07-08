@@ -3,8 +3,23 @@
 const users = [{id:1, nom:"Jean", prenom:"Pierre", age:25}]; // Déclaration du tableau qui contiendra les nouvels utilisateurs ajouter
 const validateButton = document.getElementById("valider"); //Recuperation du boutton dans le fichier index html en l'appelant par son nom cad "valider"
 showAllUser();
-validateButton.addEventListener("click", addUser); // Creation de la fonction addEventListener associée au boutton qui va detecter lorsque l'utisateur clique sur le boutton. Elle prend en paramètre click et une fonction qui par nous en l'occurence addUser qui est la fonction qui sera appele lorsque l'utilisateur clique sur le boutton
+validateButton.addEventListener("click", addUser); // Creation de la fonction addEventListener associée au boutton qui va detecter lorsque l'utisateur clique sur le boutton. Elle prend en paramètre click et une fonction addUser qui sera définie et appele lorsque l'utilisateur cliquera sur le boutton
+updateOrDeleteUser();
 
+function updateOrDeleteUser(){
+  const deleteButtons = document.querySelectorAll('.Supprimer'); //On récupère tous les bouttons qui ont été crée au trauvers de queryselectAll en prenant en parametre .Supprimer: le . point désigner que c'est une class
+  const editButtons = document.querySelectorAll('.Modifier');
+
+  //Ajout d'un evenement sur chaque boutton qui aura été cliquer
+
+  deleteButtons.forEach((button)=>
+    //button.addEventListener('click', deleteUser(button.id)) //Ecrit ainsi cette fonction sera executer automatiquement sans que l'on ai a cliquer sur le button
+    button.addEventListener('click', ()=> deleteUser(button.id))
+  );
+  editButtons.forEach((button)=>
+    button.addEventListener('click', ()=> editUser)
+  );
+}
 //Création de le fonction addUser qui sera appelée lorsque l'utilisateur cliquera sur le boutton
 // const addUser = () => {}  //Arrow function donc l'equivalent est comme ci dessous:
 
@@ -18,7 +33,7 @@ function addUser(event) {     // passage du parametre event à notre fonction
   const enteredUsersData= {   // Création d'une variable de type objet qui va pré-sauvegardé toutes les valeurs que l'utilisateur aura rentré dans le formulaire
     //Comme dans tout système de base de donnée. Chaque ensemble de base de donnée possède un numéro d'identification unique et doit être généré en interne automatiquement
     //génération de l'id d'un ensemble à sauvegarder par récupération du numéro  et incrémentation du dernier ensemble sauvegardé
-    id: users[users.length-1].id+1,  // cette commande n'est valable que si users est non nul
+    //id: users[users.length-1].id+1,  // cette commande n'est valable que si users est non nul
 
     //commande plus complète au cas users est nul de la génération de l'id automatiquement
     id: users.length !==0 ? users[users.length-1].id +1 : 1, // "users.length !==0 " (si la longueur du tableau est différent de 0),  "? users[users.length - 1].id + 1" (si c'est le cas "?"alors incrémente l'id du dernier ensemble du tableau de +1), ":"(sinon(else) id = 1)
@@ -45,13 +60,13 @@ function addUser(event) {     // passage du parametre event à notre fonction
 
 //AFFICHAGE DES UTILISATEURS SAUVEGARDER DANS "users=[...]" AU NIVEAU DE NOTRE SITE
 function showAllUser() {
-  document.getElementById('allUsers').innerHTML=''; // Instruction pour vider le contenu de allUsers. En d'autre terme vider son balissage
+  document.getElementById('allUsers').innerHTML=''; // Instruction pour vider le contenu de allUsers. En d'autre terme vider son balissage Par récuperation de son code html innerhtml
   users.forEach(user =>{                        //foreach cad on parcours le tableau users ligne par ligne et pour chaque utilisateur on crée :
-    const newInputs = {                                                                          //- des inputs pour stocker le nom, prenom et age dans "user" sans s
+    const newInputs = {                                                                          //- des inputs pour stocker le nom, prenom et age dans "user" sans s qui seront
       Nom: document.createElement('input'),
       Prenom:document.createElement('input'),
       Age:document.createElement('input'),
-    };
+    }; // A la fin de ce forEach newInputs est un objet qui comporte toute les key : nom, prenom et age de notre table users et toute leurs valeurs associé jean, Pierre et 25
                                        
     const newButtons={
       Supprimer:document.createElement('input'),                                                //- Des bouttons pour le supprimer ou le modifier
@@ -81,11 +96,38 @@ function showAllUser() {
       newDiv.appendChild(value);
     }
 
-  }) // instruction pour parcourir les elements de users de les sauvegarder en memoire tempo pour utilisatiion ulterieure
+  }); // instruction pour parcourir les elements de users de les sauvegarder en memoire tempo pour utilisatiion ulterieure
 
-  
+  updateOrDeleteUser();
 
-  
+ 
 
 }
 //FIN AFFICHAGE DES UTILISATEURS SAUVEGARDER DANS "users=[...]" AU NIVEAU DE NOTRE SITE
+
+//Creation de nos fonctions de modification et suppression
+function deleteUser(id){
+  users.forEach((user)=>{
+    const userPositionInArray = users.indexOf(user);
+    user.id === parseInt(id) && users.splice(userPositionInArray, 1);
+  });
+  showAllUser();
+
+}
+
+function editUser(id){
+  const newInputs = {
+    nom: document.getElementById(`NomOfUser${id}`).value,
+    prenom: document.getElementById(`PrenomOfUser${id}`).value,
+    age: document.getElementById(`AgeOfUser${id}`).value
+  };
+  users.forEach((user) => {
+    if (user.id === parseInt(id)) {
+      user.nom = newInputs.nom;
+      user.prenom = newInputs.prenom;
+      user.age = newInputs.age;
+    }
+  });
+
+
+}
